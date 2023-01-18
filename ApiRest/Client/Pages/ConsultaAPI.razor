@@ -1,0 +1,109 @@
+﻿@inject HttpClient Http
+@page "/consultaapi"
+
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <h1>CONSULTA API</h1>
+            <div class="row mt-5">
+                <button type="button" class="mr-3" @onclick="(async()=> await GetUSDaily())">
+                    CONSULTAR API 1
+                </button>
+                <button type="button" @onclick="(async()=> await GetSateDaily())">
+                    CONSULTAR API 2
+                </button>
+            </div>
+            <div class="row mt-4">
+                @if (respuestaUSDaily == null)
+                {
+                    <p><em>@load1</em></p>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>States</th>
+                                <th>Positive</th>
+                                <th>Negative</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in respuestaUSDaily)
+                            {
+                                <tr>
+                                    <td>@(item.date) </td>
+                                    <td>@item.states</td>
+                                    <td>@item.positive</td>
+                                    <td>@item.negative</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                @if (respuestaStateDaily == null)
+                {
+
+                    <p><em>@load2</em></p>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>State</th>
+                                <th>Positive</th>
+                                <th>probableCases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in respuestaStateDaily.Take(100).ToList())
+                            {
+                                <tr>
+                                    <td>@(item.date) </td>
+                                    <td>@item.state</td>
+                                    <td>@item.positive</td>
+                                    <td>@item.probableCases</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    List<DatosUSDaily> respuestaUSDaily;
+    List<DatosStatesDaily> respuestaStateDaily;
+    public string load1 = "";
+    public string load2 = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    public async Task GetUSDaily()
+    {
+        respuestaStateDaily = null;
+        load1 = "Cargando...";
+        //Http.DefaultRequestHeaders.Add("Role", "BUSCADOR");
+        respuestaUSDaily = await Http.GetFromJsonAsync<List<DatosUSDaily>>("Datos/consultaDatosUSDaily");
+        load1 = "";
+    }
+
+    public async Task GetSateDaily()
+    {
+        respuestaUSDaily = null;
+        load2 = "Cargando..";
+        //Http.DefaultRequestHeaders.Add("Role", "CIUDADANO");
+        respuestaStateDaily = await Http.GetFromJsonAsync<List<DatosStatesDaily>>("Datos/consultaDatosSatateDaily");
+        load2 = "";
+    }
+}
+
